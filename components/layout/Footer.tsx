@@ -67,9 +67,17 @@ export default async function Footer() {
         </div>
 
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <p className="text-[10px] text-[#999] uppercase tracking-wider">
-            © {new Date().getFullYear()} {SITE_CONFIG.name}. {t(locale, "follow") === "Follow" ? "All rights reserved." : "All rights reserved."}
-          </p>
+          <div className="flex items-center gap-6">
+            <p className="text-[10px] text-[#999] uppercase tracking-wider">
+              © {new Date().getFullYear()} {SITE_CONFIG.name}. All rights reserved.
+            </p>
+            <a
+              href="mailto:info.pushplaymag@gmail.com"
+              className="text-[10px] text-[#999] uppercase tracking-wider hover:text-[#ff4e5b] transition-colors"
+            >
+              Contact
+            </a>
+          </div>
 
           {/* Follow row */}
           <div className="flex items-center gap-4">
