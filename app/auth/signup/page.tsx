@@ -5,26 +5,44 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { SITE_CONFIG } from "@/lib/nav-config";
 
-export default function SignInPage() {
-  const [form, setForm] = useState({ email: "", password: "" });
+export default function SignUpPage() {
+  const [form, setForm] = useState({ name: "", email: "", password: "", confirm: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleCredentials = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (form.password !== form.confirm) {
+      setError("Passwords do not match.");
+      return;
+    }
+    if (form.password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+
     setLoading(true);
     try {
-      const res = await signIn("credentials", {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: form.name, email: form.email, password: form.password }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Sign up failed.");
+        return;
+      }
+
+      // Auto sign in after registration
+      await signIn("credentials", {
         email: form.email,
         password: form.password,
-        redirect: false,
+        redirectTo: "/",
       });
-      if (res?.error) {
-        setError("Invalid email or password.");
-      } else {
-        window.location.href = "/";
-      }
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -44,17 +62,21 @@ export default function SignInPage() {
             {SITE_CONFIG.name}
           </h1>
           <p className="text-[10px] tracking-[0.3em] uppercase text-[#6b635c]">
-            Sign in to join the community
+            Create your account
           </p>
         </div>
 
         <div className="border-t-2 border-[#c8922a] mb-8" />
 
-        {/* OAuth Buttons */}
-        <div className="space-y-2.5 mb-6">
-          {/* Google */}
+        {/* Google Sign In */}
+        <form
+          action={async () => {
+            await signIn("google", { redirectTo: "/" });
+          }}
+          className="mb-6"
+        >
           <button
-            onClick={() => signIn("google", { callbackUrl: "/" })}
+            type="submit"
             className="w-full flex items-center gap-3 px-5 py-3 border border-[#d4ccc7] text-[11px] tracking-[0.15em] uppercase font-medium bg-white hover:bg-neutral-50 text-neutral-800 transition-colors"
           >
             <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none">
@@ -65,18 +87,7 @@ export default function SignInPage() {
             </svg>
             <span>Continue with Google</span>
           </button>
-
-          {/* GitHub (admin) */}
-          <button
-            onClick={() => signIn("github", { callbackUrl: "/" })}
-            className="w-full flex items-center gap-3 px-5 py-3 border border-transparent text-[11px] tracking-[0.15em] uppercase font-medium bg-[#24292e] hover:bg-[#333] text-white transition-colors"
-          >
-            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
-              <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-            </svg>
-            <span>Continue with GitHub</span>
-          </button>
-        </div>
+        </form>
 
         <div className="flex items-center gap-3 mb-6">
           <div className="flex-1 border-t border-[#e0ddd8]" />
@@ -84,8 +95,15 @@ export default function SignInPage() {
           <div className="flex-1 border-t border-[#e0ddd8]" />
         </div>
 
-        {/* Email/Password */}
-        <form onSubmit={handleCredentials} className="space-y-3">
+        {/* Email/Password Form */}
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <input
+            type="text"
+            placeholder="Name (optional)"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            className="w-full px-4 py-3 border border-[#d4ccc7] text-sm text-[#1a1614] placeholder-[#a89e99] focus:outline-none focus:border-[#c8922a] bg-white"
+          />
           <input
             type="email"
             placeholder="Email"
@@ -96,10 +114,18 @@ export default function SignInPage() {
           />
           <input
             type="password"
-            placeholder="Password"
+            placeholder="Password (min. 8 characters)"
             required
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
+            className="w-full px-4 py-3 border border-[#d4ccc7] text-sm text-[#1a1614] placeholder-[#a89e99] focus:outline-none focus:border-[#c8922a] bg-white"
+          />
+          <input
+            type="password"
+            placeholder="Confirm password"
+            required
+            value={form.confirm}
+            onChange={(e) => setForm({ ...form, confirm: e.target.value })}
             className="w-full px-4 py-3 border border-[#d4ccc7] text-sm text-[#1a1614] placeholder-[#a89e99] focus:outline-none focus:border-[#c8922a] bg-white"
           />
 
@@ -112,14 +138,14 @@ export default function SignInPage() {
             disabled={loading}
             className="w-full px-5 py-3 bg-[#1a1614] hover:bg-[#2a2220] text-white text-[11px] tracking-[0.2em] uppercase font-medium transition-colors disabled:opacity-50"
           >
-            {loading ? "Signing in..." : "Sign In"}
+            {loading ? "Creating account..." : "Create Account"}
           </button>
         </form>
 
         <p className="text-[10px] text-[#5a5250] text-center mt-6 tracking-widest uppercase">
-          No account?{" "}
-          <Link href="/auth/signup" className="underline hover:text-[#1a1614]">
-            Create one
+          Already have an account?{" "}
+          <Link href="/auth/signin" className="underline hover:text-[#1a1614]">
+            Sign in
           </Link>
         </p>
       </div>
