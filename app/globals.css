@@ -1,26 +1,46 @@
 @import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@plugin "@tailwindcss/typography";
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-display: var(--font-display);
+
+  --color-bg: #ffffff;
+  --color-nav: #ffffff;
+  --color-surface: #eeece8;
+  --color-surface-2: #e8e5e1;
+  --color-border: #e0ddd8;
+  --color-text: #0d0b0a;
+  --color-muted: #7a706b;
+  --color-subtle: #a89e99;
+  --color-accent: #ff4e5b;
+  --color-accent-hover: #e03040;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--color-border);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+.font-display {
+  font-family: var(--font-display), system-ui, sans-serif;
+}
+
+/* Prose tweaks */
+.prose {
+  --tw-prose-body: #3a3330;
+  --tw-prose-headings: #0d0b0a;
+  --tw-prose-links: #ff4e5b;
+  --tw-prose-bold: #0d0b0a;
+  --tw-prose-quotes: #3a3330;
+  --tw-prose-quote-borders: #e0ddd8;
+  --tw-prose-hr: #e0ddd8;
+  --tw-prose-code: #0d0b0a;
+  --tw-prose-pre-bg: #eeece8;
 }

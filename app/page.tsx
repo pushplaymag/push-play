@@ -1,65 +1,208 @@
-import Image from "next/image";
+import Link from "next/link";
+import { db } from "@/lib/db";
+import PostCard from "@/components/ui/PostCard";
+import { t } from "@/lib/i18n";
+import { getLocale } from "@/lib/locale";
+import { localizePost } from "@/lib/localize";
 
-export default function Home() {
+export const revalidate = 0;
+
+async function getLatestNews() {
+  return db.post.findMany({
+    where: { published: true, category: "news" },
+    orderBy: { createdAt: "desc" },
+    take: 5,
+    include: { _count: { select: { comments: true } } },
+  });
+}
+
+async function getLatestReviews() {
+  return db.post.findMany({
+    where: { published: true, category: "review" },
+    orderBy: { createdAt: "desc" },
+    take: 5,
+    include: { _count: { select: { comments: true } } },
+  });
+}
+
+async function getFeaturedPost() {
+  const featured = await db.post.findFirst({
+    where: { published: true, featured: true },
+    orderBy: { createdAt: "desc" },
+    include: { _count: { select: { comments: true } } },
+  });
+  if (featured) return featured;
+  return db.post.findFirst({
+    where: { published: true },
+    orderBy: { createdAt: "desc" },
+    include: { _count: { select: { comments: true } } },
+  });
+}
+
+function SectionHeader({ label, href, viewAll }: { label: string; href: string; viewAll: string }) {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="flex items-center justify-between mb-6 pb-3 border-b-2 border-[#ff4e5b]">
+      <h2
+        className="text-base font-black uppercase tracking-widest text-[#0d0b0a]"
+        style={{ fontFamily: "var(--font-display)" }}
+      >
+        {label}
+      </h2>
+      <Link
+        href={href}
+        className="text-[10px] font-bold uppercase tracking-widest text-[#a89e99] hover:text-[#ff4e5b] transition-colors"
+      >
+        {viewAll}
+      </Link>
+    </div>
+  );
+}
+
+export default async function HomePage() {
+  const [hero, news, reviews, locale] = await Promise.all([
+    getFeaturedPost(),
+    getLatestNews(),
+    getLatestReviews(),
+    getLocale(),
+  ]);
+
+  const localizedHero = hero ? localizePost(hero, locale) : null;
+  const localizedNews = news.map(p => localizePost(p, locale));
+  const localizedReviews = reviews.map(p => localizePost(p, locale));
+  const isEmpty = !hero && news.length === 0 && reviews.length === 0;
+
+  return (
+    <div>
+      {/* ── Hero ── */}
+      {localizedHero && <PostCard post={localizedHero} variant="hero" />}
+
+      {/* ── Empty state ── */}
+      {isEmpty && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-24 text-center">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-[#ff4e5b] mb-6">
+            {t(locale, "comingSoon")}
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          <h2
+            className="text-5xl sm:text-6xl font-black text-[#d4ccc7] leading-tight"
+            style={{ fontFamily: "var(--font-display)" }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            {t(locale, "storiesOnWay")}
+          </h2>
         </div>
-      </main>
+      )}
+
+      {/* ── Playlist ── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 pb-16">
+        <div className="pt-10 border-t border-[#e0ddd8]">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-[#a89e99] mb-6">
+            {t(locale, "playlist")}
+          </p>
+          <iframe
+            style={{ borderRadius: "4px" }}
+            src="https://open.spotify.com/embed/playlist/43eFC1XtnTmOs52h3WPBRp?utm_source=generator"
+            width="100%"
+            height="152"
+            frameBorder="0"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy"
+          />
+        </div>
+      </div>
+
+      {/* ── News + Reviews ── */}
+      {!isEmpty && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+
+            {/* News — left column */}
+            <div>
+              <SectionHeader label={t(locale, "latestNews")} href="/news" viewAll={t(locale, "viewAll")} />
+              {localizedNews.length === 0 ? (
+                <p className="text-[#a89e99] text-sm py-8">{t(locale, "noNewsYet")}</p>
+              ) : (
+                <div className="space-y-0">
+                  {localizedNews[0] && (
+                    <div className="mb-8">
+                      <PostCard post={localizedNews[0]} variant="featured" />
+                    </div>
+                  )}
+                  {localizedNews.slice(1).map((post) => (
+                    <PostCard key={post.id} post={post} variant="standard" />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Reviews — right column */}
+            <div>
+              <SectionHeader label={t(locale, "reviews")} href="/reviews" viewAll={t(locale, "viewAll")} />
+              {localizedReviews.length === 0 ? (
+                <p className="text-[#a89e99] text-sm py-8">{t(locale, "noReviewsYet")}</p>
+              ) : (
+                <div className="space-y-0">
+                  {localizedReviews[0] && (
+                    <div className="mb-8">
+                      <PostCard post={localizedReviews[0]} variant="featured" />
+                    </div>
+                  )}
+                  {localizedReviews.slice(1).map((post) => (
+                    <PostCard key={post.id} post={post} variant="standard" />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ── Region tags ── */}
+          <div className="mt-16 pt-10 border-t border-[#e0ddd8]">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#a89e99] mb-5 text-center">
+              {t(locale, "browseByRegion")}
+            </p>
+            <div className="flex flex-wrap justify-center gap-3">
+              {[
+                { label: "Korea", href: "/reviews?country=kr" },
+                { label: "Japan", href: "/reviews?country=jp" },
+                { label: "Asia", href: "/reviews?country=asia" },
+                { label: "UK / US", href: "/reviews?country=en" },
+              ].map((tag) => (
+                <Link
+                  key={tag.href}
+                  href={tag.href}
+                  className="text-xs font-semibold uppercase tracking-wider text-[#a89e99] border border-[#e0ddd8] px-5 py-2 hover:border-[#ff4e5b] hover:text-[#ff4e5b] transition-colors"
+                >
+                  {tag.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Artist CTA ── */}
+          <div className="mt-16">
+            <div className="bg-[#eeece8] px-8 py-10 sm:px-14 sm:py-14 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#ff4e5b] mb-3">
+                  {t(locale, "forArtists")}
+                </p>
+                <h2
+                  className="text-2xl sm:text-3xl font-black text-[#0d0b0a] mb-2"
+                  style={{ fontFamily: "var(--font-display)" }}
+                >
+                  {t(locale, "letUsHear")}
+                </h2>
+                <p className="text-sm text-[#a89e99] max-w-md leading-relaxed">
+                  {t(locale, "artistsCTA")}
+                </p>
+              </div>
+              <Link
+                href="/demo"
+                className="flex-shrink-0 text-xs font-black uppercase tracking-widest bg-[#ff4e5b] text-white px-8 py-4 hover:bg-[#e03040] transition-colors"
+              >
+                {t(locale, "submitDemo")}
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
