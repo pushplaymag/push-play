@@ -39,7 +39,7 @@ const translations = {
     // Demo page
     demoPageLabel: "For Artists",
     demoPageHeading: "Submit a Demo",
-    demoDesc: "push play is looking for indie artists making original music across all genres. We welcome artists from Korea, Japan, Asia, and anywhere in the English-speaking world.",
+    demoDesc: "push play is looking for indie artists making original music across all genres. We welcome artists from anywhere in the English-speaking world and across Asia.",
     reviewPeriod: "Review Period",
     reviewPeriodDesc: "Up to 4 weeks",
     responseMethod: "Response Method",
@@ -190,7 +190,7 @@ const translations = {
     submitADemoContent: "独立アーティストまたはレーベル関係者ですか？音楽を送ってください。すべてのジャンル、すべての地域のアーティストを歓迎します。何よりオリジナリティと真摯さを大切にしています。",
     demoPageLabel: "アーティストへ",
     demoPageHeading: "デモを送る",
-    demoDesc: "push playは、あらゆるジャンルでオリジナル音楽を制作するインディーアーティストを探しています。韓国、日本、アジア、英語圏どこからでも歓迎します。",
+    demoDesc: "push playは、あらゆるジャンルでオリジナル音楽を制作するインディーアーティストを探しています。英語圏・アジア圏どこからでも歓迎します。",
     reviewPeriod: "審査期間",
     reviewPeriodDesc: "最大4週間",
     responseMethod: "返答方法",
