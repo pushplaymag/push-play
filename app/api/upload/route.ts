@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
+import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 
 export async function POST(req: NextRequest) {
@@ -21,8 +21,10 @@ export async function POST(req: NextRequest) {
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
   const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
   const buffer = Buffer.from(await file.arrayBuffer());
-  const uploadPath = path.join(process.cwd(), "public", "uploads", filename);
+  const uploadDir = path.join(process.cwd(), "public", "uploads");
+  const uploadPath = path.join(uploadDir, filename);
 
+  await mkdir(uploadDir, { recursive: true });
   await writeFile(uploadPath, buffer);
   return NextResponse.json({ url: `/uploads/${filename}` });
 }

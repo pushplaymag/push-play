@@ -21,20 +21,26 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const { title, excerpt, content, titleKo, excerptKo, contentKo, titleJa, excerptJa, contentJa, coverImage, category, tags, published, featured, author, rating, artist, album, genre, country } = body;
 
-  if (!title || !excerpt || !content || !category) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  // Allow Korean-only posts: use Ko fields as fallback for English
+  const effectiveTitle = title || titleKo;
+  const effectiveExcerpt = excerpt || excerptKo;
+  const effectiveContent = content || contentKo;
+
+  if (!effectiveTitle || !effectiveExcerpt || !effectiveContent || !category) {
+    return NextResponse.json({ error: "Missing required fields (title, excerpt, content)" }, { status: 400 });
   }
 
-  let slug = slugify(title);
+  let slug = slugify(effectiveTitle);
+  if (!slug) slug = `post-${Date.now()}`;
   const existing = await db.post.findUnique({ where: { slug } });
   if (existing) slug = `${slug}-${Date.now()}`;
 
   const post = await db.post.create({
     data: {
-      title,
+      title: effectiveTitle,
       slug,
-      excerpt,
-      content,
+      excerpt: effectiveExcerpt,
+      content: effectiveContent,
       titleKo: titleKo || null,
       excerptKo: excerptKo || null,
       contentKo: contentKo || null,

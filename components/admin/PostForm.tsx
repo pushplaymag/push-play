@@ -340,12 +340,12 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
           <div className="space-y-4">
             <div>
               <label className={labelCls}>Title *</label>
-              <input required value={title} onChange={e => setTitle(e.target.value)}
-                placeholder="Post title" className={`${inputCls} text-lg font-bold`} />
+              <input value={title} onChange={e => setTitle(e.target.value)}
+                placeholder="Post title (or fill via 자동번역)" className={`${inputCls} text-lg font-bold`} />
             </div>
             <div>
               <label className={labelCls}>Excerpt *</label>
-              <textarea required value={excerpt} onChange={e => setExcerpt(e.target.value)}
+              <textarea value={excerpt} onChange={e => setExcerpt(e.target.value)}
                 rows={2} placeholder="Short description shown in listings..."
                 className={`${inputCls} resize-none`} />
             </div>
