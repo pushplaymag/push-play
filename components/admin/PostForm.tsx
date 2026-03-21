@@ -102,6 +102,7 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
   const [excerptJa, setExcerptJa] = useState(initialData?.excerptJa ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [insertMenuAt, setInsertMenuAt] = useState<number | null>(null);
 
   const [blocks, setBlocks] = useState<Block[]>(() => {
     if (!initialData?.content) return [{ id: uid(), type: "text", content: "" }];
@@ -130,16 +131,25 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
     return [{ id: uid(), type: "text", content: initialData.contentJa }];
   });
 
+  function makeBlock(type: BlockType): Block {
+    const id = uid();
+    if (type === "text") return { id, type: "text", content: "" };
+    if (type === "image") return { id, type: "image", url: "", alt: "", caption: "" };
+    if (type === "youtube") return { id, type: "youtube", url: "" };
+    return { id, type: "spotify", url: "" };
+  }
+
   function makeBlockActions(setter: React.Dispatch<React.SetStateAction<Block[]>>) {
     return {
       add(type: BlockType) {
-        const id = uid();
-        let block: Block;
-        if (type === "text") block = { id, type: "text", content: "" };
-        else if (type === "image") block = { id, type: "image", url: "", alt: "", caption: "" };
-        else if (type === "youtube") block = { id, type: "youtube", url: "" };
-        else block = { id, type: "spotify", url: "" };
-        setter(prev => [...prev, block]);
+        setter(prev => [...prev, makeBlock(type)]);
+      },
+      insertAt(afterIndex: number, type: BlockType) {
+        setter(prev => {
+          const next = [...prev];
+          next.splice(afterIndex + 1, 0, makeBlock(type));
+          return next;
+        });
       },
       remove(id: string) {
         setter(prev => prev.filter(b => b.id !== id));
@@ -360,105 +370,144 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
           Content
           {langTab !== "en" && <span className="ml-2 text-[#a89e99] normal-case tracking-normal">(비워두면 원본 표시)</span>}
         </label>
-        <div className="space-y-3">
-          {activeBlocks.map((block, idx) => (
-            <div key={block.id} className="border border-[#e0ddd8] bg-white">
-              {/* Block toolbar */}
-              <div className="flex items-center justify-between px-3 py-1.5 bg-[#f8f7f5] border-b border-[#e0ddd8]">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#a89e99]">
-                  {block.type}
-                </span>
-                <div className="flex items-center gap-1">
-                  <button type="button" onClick={() => activeActions.move(block.id, -1)} disabled={idx === 0}
-                    className="text-[#a89e99] hover:text-[#0d0b0a] disabled:opacity-30 px-1.5 text-xs">↑</button>
-                  <button type="button" onClick={() => activeActions.move(block.id, 1)} disabled={idx === activeBlocks.length - 1}
-                    className="text-[#a89e99] hover:text-[#0d0b0a] disabled:opacity-30 px-1.5 text-xs">↓</button>
-                  <button type="button" onClick={() => activeActions.remove(block.id)}
-                    className="text-[#a89e99] hover:text-red-500 px-1.5 text-xs ml-1">✕</button>
-                </div>
-              </div>
 
-              {/* Block body */}
-              <div className="p-3">
-                {block.type === "text" && (
-                  <textarea
-                    value={block.content}
-                    onChange={e => activeActions.update(block.id, { content: e.target.value })}
-                    rows={6}
-                    placeholder="Write your text here... (double line break = new paragraph)"
-                    className="w-full text-sm text-[#0d0b0a] focus:outline-none resize-y leading-relaxed"
-                  />
-                )}
-
-                {block.type === "image" && (
-                  <div className="space-y-2">
-                    <div className="flex gap-2">
-                      <input value={block.url} onChange={e => activeActions.update(block.id, { url: e.target.value })}
-                        placeholder="Image URL (https://... or upload a file)" className={inputCls} />
-                      <ImageUploadButton onUploaded={url => activeActions.update(block.id, { url })} />
+        {/* Insert-between menu component */}
+        {activeBlocks.length === 0 ? (
+          <div className="border-2 border-dashed border-[#e0ddd8] p-6 text-center">
+            <p className="text-xs text-[#a89e99] mb-3">블록을 추가해 글을 작성하세요</p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {(["text", "image", "youtube", "spotify"] as BlockType[]).map(type => (
+                <button key={type} type="button" onClick={() => activeActions.add(type)}
+                  className="text-[10px] font-bold uppercase tracking-widest border border-[#e0ddd8] px-4 py-2 text-[#7a706b] hover:border-[#ff4e5b] hover:text-[#ff4e5b] transition-colors">
+                  + {type}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-0">
+            {activeBlocks.map((block, idx) => (
+              <div key={block.id}>
+                {/* Block */}
+                <div className="border border-[#e0ddd8] bg-white">
+                  {/* Block toolbar */}
+                  <div className="flex items-center justify-between px-3 py-1.5 bg-[#f8f7f5] border-b border-[#e0ddd8]">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#a89e99]">
+                      {block.type === "text" ? "📝 Text" : block.type === "image" ? "🖼 Image" : block.type === "youtube" ? "▶ YouTube" : "🎵 Spotify"}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <button type="button" onClick={() => activeActions.move(block.id, -1)} disabled={idx === 0}
+                        className="text-[#a89e99] hover:text-[#0d0b0a] disabled:opacity-30 px-1.5 text-xs">↑</button>
+                      <button type="button" onClick={() => activeActions.move(block.id, 1)} disabled={idx === activeBlocks.length - 1}
+                        className="text-[#a89e99] hover:text-[#0d0b0a] disabled:opacity-30 px-1.5 text-xs">↓</button>
+                      <button type="button" onClick={() => activeActions.remove(block.id)}
+                        className="text-[#a89e99] hover:text-red-500 px-1.5 text-xs ml-1">✕</button>
                     </div>
-                    <input value={block.alt} onChange={e => activeActions.update(block.id, { alt: e.target.value })}
-                      placeholder="Alt text" className={inputCls} />
-                    <input value={block.caption} onChange={e => activeActions.update(block.id, { caption: e.target.value })}
-                      placeholder="Caption (optional)" className={inputCls} />
-                    {block.url && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={block.url} alt={block.alt} className="max-h-48 w-full object-contain border border-[#e0ddd8] mt-1" />
-                    )}
                   </div>
-                )}
 
-                {block.type === "youtube" && (
-                  <div className="space-y-2">
-                    <input value={block.url} onChange={e => activeActions.update(block.id, { url: e.target.value })}
-                      placeholder="YouTube URL (https://www.youtube.com/watch?v=...)" className={inputCls} />
-                    {extractYouTubeId(block.url) && (
-                      <div className="aspect-video">
-                        <iframe
-                          src={`https://www.youtube.com/embed/${extractYouTubeId(block.url)}`}
-                          className="w-full h-full"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        />
+                  {/* Block body */}
+                  <div className="p-3">
+                    {block.type === "text" && (
+                      <textarea
+                        value={block.content}
+                        onChange={e => activeActions.update(block.id, { content: e.target.value })}
+                        rows={6}
+                        placeholder="텍스트를 입력하세요... (빈 줄 두 번 = 새 단락)"
+                        className="w-full text-sm text-[#0d0b0a] focus:outline-none resize-y leading-relaxed"
+                      />
+                    )}
+
+                    {block.type === "image" && (
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <input value={block.url} onChange={e => activeActions.update(block.id, { url: e.target.value })}
+                            placeholder="이미지 URL (https://...) 또는 파일 업로드" className={inputCls} />
+                          <ImageUploadButton onUploaded={url => activeActions.update(block.id, { url })} />
+                        </div>
+                        <input value={block.alt} onChange={e => activeActions.update(block.id, { alt: e.target.value })}
+                          placeholder="대체 텍스트 (alt text)" className={inputCls} />
+                        <input value={block.caption} onChange={e => activeActions.update(block.id, { caption: e.target.value })}
+                          placeholder="캡션 (선택사항)" className={inputCls} />
+                        {block.url && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={block.url} alt={block.alt} className="max-h-48 w-full object-contain border border-[#e0ddd8] mt-1" />
+                        )}
+                      </div>
+                    )}
+
+                    {block.type === "youtube" && (
+                      <div className="space-y-2">
+                        <input value={block.url} onChange={e => activeActions.update(block.id, { url: e.target.value })}
+                          placeholder="YouTube URL (https://www.youtube.com/watch?v=...)" className={inputCls} />
+                        {extractYouTubeId(block.url) && (
+                          <div className="aspect-video">
+                            <iframe
+                              src={`https://www.youtube.com/embed/${extractYouTubeId(block.url)}`}
+                              className="w-full h-full"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {block.type === "spotify" && (
+                      <div className="space-y-2">
+                        <input value={block.url} onChange={e => activeActions.update(block.id, { url: e.target.value })}
+                          placeholder="Spotify URL (트랙, 앨범, 또는 플레이리스트)" className={inputCls} />
+                        {block.url && (
+                          <iframe
+                            src={toSpotifyEmbed(block.url)}
+                            height="152"
+                            style={{ borderRadius: "4px" }}
+                            className="w-full"
+                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                            loading="lazy"
+                          />
+                        )}
                       </div>
                     )}
                   </div>
-                )}
+                </div>
 
-                {block.type === "spotify" && (
-                  <div className="space-y-2">
-                    <input value={block.url} onChange={e => activeActions.update(block.id, { url: e.target.value })}
-                      placeholder="Spotify URL (track, album, or playlist)" className={inputCls} />
-                    {block.url && (
-                      <iframe
-                        src={toSpotifyEmbed(block.url)}
-                        height="152"
-                        style={{ borderRadius: "4px" }}
-                        className="w-full"
-                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                        loading="lazy"
-                      />
-                    )}
-                  </div>
-                )}
+                {/* Insert-between strip */}
+                <div className="relative h-6 flex items-center justify-center group">
+                  <div className="absolute inset-x-0 top-1/2 h-px bg-[#e0ddd8] group-hover:bg-[#ff4e5b] transition-colors" />
+                  {insertMenuAt === idx ? (
+                    <div className="relative z-10 flex items-center gap-1 bg-white border border-[#ff4e5b] px-2 py-1 shadow-sm">
+                      {(["text", "image", "youtube", "spotify"] as BlockType[]).map(type => (
+                        <button key={type} type="button"
+                          onClick={() => { activeActions.insertAt(idx, type); setInsertMenuAt(null); }}
+                          className="text-[9px] font-bold uppercase tracking-widest px-2 py-1 text-[#ff4e5b] hover:bg-[#ff4e5b] hover:text-white transition-colors">
+                          {type === "text" ? "📝" : type === "image" ? "🖼" : type === "youtube" ? "▶" : "🎵"} {type}
+                        </button>
+                      ))}
+                      <button type="button" onClick={() => setInsertMenuAt(null)}
+                        className="text-[#a89e99] hover:text-[#0d0b0a] px-1 text-xs ml-1">✕</button>
+                    </div>
+                  ) : (
+                    <button type="button"
+                      onClick={() => setInsertMenuAt(insertMenuAt === idx ? null : idx)}
+                      className="relative z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-white border border-[#e0ddd8] hover:border-[#ff4e5b] hover:text-[#ff4e5b] text-[#a89e99] text-xs px-2 py-0.5 rounded-full font-bold">
+                      + 여기에 삽입
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
 
-        {/* Add block buttons */}
-        <div className="flex flex-wrap gap-2 mt-3">
-          {(["text", "image", "youtube", "spotify"] as BlockType[]).map(type => (
-            <button
-              key={type}
-              type="button"
-              onClick={() => activeActions.add(type)}
-              className="text-[10px] font-bold uppercase tracking-widest border border-[#e0ddd8] px-4 py-2 text-[#7a706b] hover:border-[#ff4e5b] hover:text-[#ff4e5b] transition-colors"
-            >
-              + {type}
-            </button>
-          ))}
-        </div>
+            {/* Add to end */}
+            <div className="flex flex-wrap gap-2 mt-2">
+              {(["text", "image", "youtube", "spotify"] as BlockType[]).map(type => (
+                <button key={type} type="button" onClick={() => { activeActions.add(type); setInsertMenuAt(null); }}
+                  className="text-[10px] font-bold uppercase tracking-widest border border-[#e0ddd8] px-4 py-2 text-[#7a706b] hover:border-[#ff4e5b] hover:text-[#ff4e5b] transition-colors">
+                  + {type}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Toggles */}
