@@ -7,7 +7,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const session = await auth();
 
   if (!session?.user?.id) {
-    redirect("/auth/signin");
+    redirect("/auth/admin");
   }
 
   // Auto-promote first user if no admins exist yet
