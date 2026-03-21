@@ -116,7 +116,7 @@ const translations = {
     submitADemoContent: "독립 아티스트이거나 레이블 관계자이신가요? 음악을 보내주세요. 모든 장르, 모든 지역의 아티스트를 환영합니다. 무엇보다 오리지널리티와 진정성을 중요시합니다.",
     demoPageLabel: "아티스트를 위해",
     demoPageHeading: "데모 신청",
-    demoDesc: "push play는 모든 장르에서 오리지널 음악을 만드는 인디 아티스트를 찾고 있습니다. 한국, 일본, 아시아, 영미권 어디서든 환영합니다.",
+    demoDesc: "push play는 모든 장르에서 오리지널 음악을 만드는 인디 아티스트를 찾고 있습니다. 영미권, 아시아권 어디서든 환영합니다.",
     reviewPeriod: "검토 기간",
     reviewPeriodDesc: "최대 4주",
     responseMethod: "답변 방법",
