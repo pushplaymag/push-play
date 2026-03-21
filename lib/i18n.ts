@@ -99,7 +99,7 @@ const translations = {
     submitDemo: "데모 신청하기",
     latest: "최신",
     news: "뉴스",
-    newsDesc: "인디 음악 씬의 최신 소식",
+    newsDesc: "음악 씬의 최신 소식",
     noNewsPublished: "아직 게시된 뉴스가 없습니다.",
     musicReviews: "음악 리뷰",
     reviewsDesc: "숨겨진 앨범과 아티스트를 발굴합니다",
