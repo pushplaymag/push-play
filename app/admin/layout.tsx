@@ -10,9 +10,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect("/auth/admin");
   }
 
-  // Auto-promote first user if no admins exist yet
-  const adminCount = await db.user.count({ where: { role: "ADMIN" } });
-  if (adminCount === 0) {
+  // GitHub 계정으로 로그인한 유저는 ADMIN으로 자동 승격
+  const githubAccount = await db.account.findFirst({
+    where: { userId: session.user.id, provider: "github" },
+  });
+
+  if (githubAccount) {
     await db.user.update({ where: { id: session.user.id }, data: { role: "ADMIN" } });
   } else {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
