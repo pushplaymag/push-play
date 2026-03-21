@@ -233,7 +233,7 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
       {error && <p className="text-red-500 text-sm bg-red-50 border border-red-200 px-4 py-2">{error}</p>}
 
       {/* Category + Author */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className={labelCls}>Category *</label>
           <select value={category} onChange={e => setCategory(e.target.value)} className={inputCls}>
@@ -249,13 +249,13 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
 
       {/* Language Tabs */}
       <div>
-        <div className="flex gap-0 border-b border-[#e0ddd8] mb-4">
+        <div className="flex gap-0 border-b border-[#e0ddd8] mb-4 overflow-x-auto">
           {(["en", "ko", "ja"] as const).map(lang => (
             <button
               key={lang}
               type="button"
               onClick={() => setLangTab(lang)}
-              className={`px-5 py-2 text-[10px] font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors ${
+              className={`flex-shrink-0 px-4 sm:px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors touch-manipulation ${
                 langTab === lang
                   ? "border-[#ff4e5b] text-[#ff4e5b]"
                   : "border-transparent text-[#a89e99] hover:text-[#7a706b]"
@@ -333,7 +333,7 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
 
       {/* Review fields */}
       {category === "review" && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4 bg-[#f8f7f5] border border-[#e0ddd8]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4 bg-[#f8f7f5] border border-[#e0ddd8]">
           <div>
             <label className={labelCls}>Artist</label>
             <input value={artist} onChange={e => setArtist(e.target.value)} className={inputCls} />
@@ -397,11 +397,11 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
                     </span>
                     <div className="flex items-center gap-1">
                       <button type="button" onClick={() => activeActions.move(block.id, -1)} disabled={idx === 0}
-                        className="text-[#a89e99] hover:text-[#0d0b0a] disabled:opacity-30 px-1.5 text-xs">↑</button>
+                        className="text-[#a89e99] hover:text-[#0d0b0a] disabled:opacity-30 px-2 py-1 text-sm touch-manipulation">↑</button>
                       <button type="button" onClick={() => activeActions.move(block.id, 1)} disabled={idx === activeBlocks.length - 1}
-                        className="text-[#a89e99] hover:text-[#0d0b0a] disabled:opacity-30 px-1.5 text-xs">↓</button>
+                        className="text-[#a89e99] hover:text-[#0d0b0a] disabled:opacity-30 px-2 py-1 text-sm touch-manipulation">↓</button>
                       <button type="button" onClick={() => activeActions.remove(block.id)}
-                        className="text-[#a89e99] hover:text-red-500 px-1.5 text-xs ml-1">✕</button>
+                        className="text-[#a89e99] hover:text-red-500 active:text-red-600 px-2 py-1 text-sm ml-1 touch-manipulation">✕</button>
                     </div>
                   </div>
 
@@ -511,15 +511,15 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
       </div>
 
       {/* Toggles */}
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-6 flex-wrap">
         {[
           { label: "Published", value: published, set: setPublished },
           { label: "Featured", value: featured, set: setFeatured },
         ].map(({ label, value, set }) => (
-          <label key={label} className="flex items-center gap-2 cursor-pointer select-none">
+          <label key={label} className="flex items-center gap-2 cursor-pointer select-none touch-manipulation py-1">
             <input type="checkbox" checked={value} onChange={e => set(e.target.checked)} className="sr-only" />
-            <div className={`w-9 h-5 rounded-full transition-colors relative ${value ? "bg-[#ff4e5b]" : "bg-[#e0ddd8]"}`}>
-              <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${value ? "translate-x-4" : ""}`} />
+            <div className={`w-10 h-6 rounded-full transition-colors relative flex-shrink-0 ${value ? "bg-[#ff4e5b]" : "bg-[#e0ddd8]"}`}>
+              <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${value ? "translate-x-4" : ""}`} />
             </div>
             <span className="text-xs font-bold uppercase tracking-widest text-[#7a706b]">{label}</span>
           </label>
@@ -527,15 +527,15 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
       </div>
 
       {/* Submit */}
-      <div className="flex items-center gap-4 pt-4 border-t border-[#e0ddd8]">
+      <div className="flex items-center gap-4 pt-4 border-t border-[#e0ddd8] flex-wrap">
         <button
           type="submit"
           disabled={saving}
-          className="text-xs font-black uppercase tracking-widest bg-[#ff4e5b] text-white px-8 py-3 hover:bg-[#e03040] transition-colors disabled:opacity-50"
+          className="text-xs font-black uppercase tracking-widest bg-[#ff4e5b] text-white px-8 py-3.5 hover:bg-[#e03040] active:bg-[#c02030] transition-colors disabled:opacity-50 touch-manipulation w-full sm:w-auto"
         >
           {saving ? "Saving..." : isEdit ? "Save Changes" : "Create Post"}
         </button>
-        <a href="/admin" className="text-xs font-bold uppercase tracking-widest text-[#a89e99] hover:text-[#0d0b0a] transition-colors">
+        <a href="/admin" className="text-xs font-bold uppercase tracking-widest text-[#a89e99] hover:text-[#0d0b0a] transition-colors touch-manipulation text-center w-full sm:w-auto">
           Cancel
         </a>
       </div>
