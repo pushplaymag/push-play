@@ -489,8 +489,8 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
                   ) : (
                     <button type="button"
                       onClick={() => setInsertMenuAt(insertMenuAt === idx ? null : idx)}
-                      className="relative z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-white border border-[#e0ddd8] hover:border-[#ff4e5b] hover:text-[#ff4e5b] text-[#a89e99] text-xs px-2 py-0.5 rounded-full font-bold">
-                      + 여기에 삽입
+                      className="relative z-10 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity bg-white border border-[#e0ddd8] hover:border-[#ff4e5b] hover:text-[#ff4e5b] text-[#a89e99] text-xs px-2 py-0.5 rounded-full font-bold touch-manipulation">
+                      + 삽입
                     </button>
                   )}
                 </div>
@@ -526,19 +526,36 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
         ))}
       </div>
 
-      {/* Submit */}
-      <div className="flex items-center gap-4 pt-4 border-t border-[#e0ddd8] flex-wrap">
+      {/* Submit — desktop only (bottom of form) */}
+      <div className="hidden sm:flex items-center gap-4 pt-4 border-t border-[#e0ddd8]">
         <button
           type="submit"
           disabled={saving}
-          className="text-xs font-black uppercase tracking-widest bg-[#ff4e5b] text-white px-8 py-3.5 hover:bg-[#e03040] active:bg-[#c02030] transition-colors disabled:opacity-50 touch-manipulation w-full sm:w-auto"
+          className="text-xs font-black uppercase tracking-widest bg-[#ff4e5b] text-white px-8 py-3.5 hover:bg-[#e03040] active:bg-[#c02030] transition-colors disabled:opacity-50 touch-manipulation"
         >
           {saving ? "Saving..." : isEdit ? "Save Changes" : "Create Post"}
         </button>
-        <a href="/admin" className="text-xs font-bold uppercase tracking-widest text-[#a89e99] hover:text-[#0d0b0a] transition-colors touch-manipulation text-center w-full sm:w-auto">
+        <a href="/admin" className="text-xs font-bold uppercase tracking-widest text-[#a89e99] hover:text-[#0d0b0a] transition-colors touch-manipulation">
           Cancel
         </a>
       </div>
+
+      {/* Sticky bottom bar — mobile only */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-[#e0ddd8] px-4 py-3 flex items-center gap-3 shadow-lg">
+        <button
+          type="submit"
+          disabled={saving}
+          className="flex-1 text-xs font-black uppercase tracking-widest bg-[#ff4e5b] text-white py-3.5 hover:bg-[#e03040] active:bg-[#c02030] transition-colors disabled:opacity-50 touch-manipulation"
+        >
+          {saving ? "Saving..." : isEdit ? "Save Changes" : "Create Post"}
+        </button>
+        <a href="/admin" className="text-xs font-bold uppercase tracking-widest text-[#a89e99] touch-manipulation px-4 py-3.5 border border-[#e0ddd8]">
+          Cancel
+        </a>
+      </div>
+
+      {/* Bottom padding so sticky bar doesn't cover last field on mobile */}
+      <div className="sm:hidden h-20" />
     </form>
   );
 }
