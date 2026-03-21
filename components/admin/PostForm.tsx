@@ -101,6 +101,7 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
   const [titleJa, setTitleJa] = useState(initialData?.titleJa ?? "");
   const [excerptJa, setExcerptJa] = useState(initialData?.excerptJa ?? "");
   const [saving, setSaving] = useState(false);
+  const [translating, setTranslating] = useState(false);
   const [error, setError] = useState("");
   const [insertMenuAt, setInsertMenuAt] = useState<number | null>(null);
 
@@ -178,6 +179,64 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
   const activeBlocks = langTab === "ko" ? blocksKo : langTab === "ja" ? blocksJa : blocks;
   const activeActions = langTab === "ko" ? koActions : langTab === "ja" ? jaActions : enActions;
 
+  async function autoTranslate() {
+    // Source: current active tab
+    const sourceLang = langTab;
+    const sourceTitle = sourceLang === "ko" ? titleKo : sourceLang === "ja" ? titleJa : title;
+    const sourceExcerpt = sourceLang === "ko" ? excerptKo : sourceLang === "ja" ? excerptJa : excerpt;
+    const sourceBlocks = sourceLang === "ko" ? blocksKo : sourceLang === "ja" ? blocksJa : blocks;
+
+    if (!sourceTitle && !sourceExcerpt) {
+      setError("현재 탭에 번역할 내용이 없습니다. 제목이나 요약을 먼저 입력하세요.");
+      return;
+    }
+
+    setTranslating(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sourceLang,
+          title: sourceTitle,
+          excerpt: sourceExcerpt,
+          blocks: sourceBlocks,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || "번역에 실패했습니다.");
+        return;
+      }
+
+      const result = await res.json();
+
+      // Fill in all languages except the source
+      if (result.en && sourceLang !== "en") {
+        setTitle(result.en.title);
+        setExcerpt(result.en.excerpt);
+        setBlocks(result.en.blocks);
+      }
+      if (result.ko && sourceLang !== "ko") {
+        setTitleKo(result.ko.title);
+        setExcerptKo(result.ko.excerpt);
+        setBlocksKo(result.ko.blocks);
+      }
+      if (result.ja && sourceLang !== "ja") {
+        setTitleJa(result.ja.title);
+        setExcerptJa(result.ja.excerpt);
+        setBlocksJa(result.ja.blocks);
+      }
+    } catch {
+      setError("번역 중 오류가 발생했습니다. 다시 시도하세요.");
+    } finally {
+      setTranslating(false);
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -249,21 +308,32 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
 
       {/* Language Tabs */}
       <div>
-        <div className="flex gap-0 border-b border-[#e0ddd8] mb-4 overflow-x-auto">
-          {(["en", "ko", "ja"] as const).map(lang => (
-            <button
-              key={lang}
-              type="button"
-              onClick={() => setLangTab(lang)}
-              className={`flex-shrink-0 px-4 sm:px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors touch-manipulation ${
-                langTab === lang
-                  ? "border-[#ff4e5b] text-[#ff4e5b]"
-                  : "border-transparent text-[#a89e99] hover:text-[#7a706b]"
-              }`}
-            >
-              {lang === "en" ? "English (원본)" : lang === "ko" ? "한국어" : "日本語"}
-            </button>
-          ))}
+        <div className="flex items-center justify-between gap-2 mb-1">
+          <div className="flex gap-0 border-b border-[#e0ddd8] overflow-x-auto flex-1">
+            {(["en", "ko", "ja"] as const).map(lang => (
+              <button
+                key={lang}
+                type="button"
+                onClick={() => setLangTab(lang)}
+                className={`flex-shrink-0 px-4 sm:px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest border-b-2 -mb-px transition-colors touch-manipulation ${
+                  langTab === lang
+                    ? "border-[#ff4e5b] text-[#ff4e5b]"
+                    : "border-transparent text-[#a89e99] hover:text-[#7a706b]"
+                }`}
+              >
+                {lang === "en" ? "English (원본)" : lang === "ko" ? "한국어" : "日本語"}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={autoTranslate}
+            disabled={translating || saving}
+            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 text-[10px] font-bold uppercase tracking-widest border border-[#e0ddd8] text-[#7a706b] hover:border-[#ff4e5b] hover:text-[#ff4e5b] transition-colors disabled:opacity-40 disabled:cursor-not-allowed touch-manipulation whitespace-nowrap"
+          >
+            <span className="text-sm leading-none">{translating ? "⏳" : "🌐"}</span>
+            {translating ? "번역 중..." : "자동번역"}
+          </button>
         </div>
 
         {langTab === "en" && (
@@ -284,7 +354,7 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
 
         {langTab === "ko" && (
           <div className="space-y-4">
-            <p className="text-[10px] text-[#a89e99] mb-2">비워두면 원본(영어)이 표시됩니다.</p>
+            <p className="text-[10px] text-[#a89e99] mb-2">비워두면 원본(영어)이 표시됩니다. 이 탭에서 한국어로 작성 후 &apos;자동번역&apos;을 누르면 나머지 언어가 채워집니다.</p>
             <div>
               <label className={labelCls}>제목 (한국어)</label>
               <input value={titleKo} onChange={e => setTitleKo(e.target.value)}
