@@ -21,7 +21,6 @@ async function getLatestNews() {
   return db.post.findMany({
     where: { published: true, category: "news" },
     orderBy: { createdAt: "desc" },
-    skip: 3,
     take: 4,
     include: { _count: { select: { comments: true } } },
   });
