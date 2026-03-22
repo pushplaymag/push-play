@@ -12,5 +12,6 @@ export async function GET() {
     AUTH_SECRET: !!process.env.AUTH_SECRET,
     NODE_ENV: process.env.NODE_ENV,
     totalEnvCount: Object.keys(process.env).length,
+    allKeys: Object.keys(process.env).sort(),
   });
 }
