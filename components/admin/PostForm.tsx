@@ -7,8 +7,8 @@ async function uploadFile(file: File): Promise<string> {
   const fd = new FormData();
   fd.append("file", file);
   const res = await fetch("/api/upload", { method: "POST", body: fd });
-  if (!res.ok) throw new Error("Upload failed");
   const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Upload failed");
   return data.url as string;
 }
 
@@ -24,7 +24,9 @@ function ImageUploadButton({ onUploaded }: { onUploaded: (url: string) => void }
         try {
           const url = await uploadFile(file);
           onUploaded(url);
-        } catch { /* ignore */ }
+        } catch (err) {
+          alert("이미지 업로드 실패: " + (err instanceof Error ? err.message : "알 수 없는 오류"));
+        }
         setUploading(false);
         e.target.value = "";
       }} />
