@@ -20,7 +20,7 @@ interface PostCardProps {
     createdAt: Date;
     _count?: { comments: number };
   };
-  variant?: "hero" | "featured" | "standard" | "compact" | "review";
+  variant?: "hero" | "featured" | "standard" | "compact" | "review" | "list";
 }
 
 const COUNTRY_LABELS: Record<string, string> = {
@@ -249,11 +249,62 @@ function ReviewCard({ post }: { post: PostCardProps["post"] }) {
   );
 }
 
+// List — CINRA-style horizontal list row with large thumbnail
+function ListCard({ post }: { post: PostCardProps["post"] }) {
+  const dateStr = new Date(post.createdAt).toLocaleDateString("ko-KR", {
+    year: "numeric", month: "2-digit", day: "2-digit",
+  }).replace(/\. /g, ".").replace(/\.$/, "");
+
+  return (
+    <Link href={`/${post.category}/${post.slug}`} className="group block">
+      <article className="flex gap-5 py-5 border-b border-[#e8e6e2]">
+        {/* Thumbnail */}
+        <div className="relative flex-shrink-0 overflow-hidden bg-[#eeece8]" style={{ width: 180, height: 120 }}>
+          {post.coverImage ? (
+            <Image
+              src={post.coverImage}
+              alt={post.title}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-[#eeece8]" />
+          )}
+        </div>
+
+        {/* Text */}
+        <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+          <div>
+            <div className="mb-1.5">
+              <CategoryTag category={post.category} country={post.country} genre={post.genre} />
+            </div>
+            <h3 className="font-bold text-[#0d0b0a] leading-snug group-hover:text-[#ff4e5b] transition-colors text-base sm:text-lg line-clamp-2 mb-2">
+              {post.title}
+            </h3>
+            <p className="text-sm text-[#a89e99] line-clamp-2 hidden sm:block">{post.excerpt}</p>
+          </div>
+          <div className="flex items-center justify-between mt-2">
+            <div className="flex items-center gap-2 text-[11px] text-[#a89e99]">
+              <span className="font-medium">{post.author}</span>
+              <span>·</span>
+              <span>{dateStr}</span>
+            </div>
+            {post._count && post._count.comments > 0 && (
+              <span className="text-[11px] text-[#a89e99]">💬 {post._count.comments}</span>
+            )}
+          </div>
+        </div>
+      </article>
+    </Link>
+  );
+}
+
 export default function PostCard({ post, variant = "featured" }: PostCardProps) {
   if (variant === "hero") return <HeroCard post={post} />;
   if (variant === "featured") return <FeaturedCard post={post} />;
   if (variant === "standard") return <StandardCard post={post} />;
   if (variant === "review") return <ReviewCard post={post} />;
   if (variant === "compact") return <StandardCard post={post} />;
+  if (variant === "list") return <ListCard post={post} />;
   return <FeaturedCard post={post} />;
 }
