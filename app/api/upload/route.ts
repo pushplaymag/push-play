@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
-import { v2 as cloudinary } from "cloudinary";
+import crypto from "crypto";
 
 export const runtime = "nodejs";
 
@@ -15,10 +15,11 @@ export async function POST(req: NextRequest) {
   const apiSecret = process.env.CLOUDINARY_API_SECRET;
 
   if (!cloudName || !apiKey || !apiSecret) {
-    return NextResponse.json({ error: "Image upload not configured" }, { status: 500 });
+    return NextResponse.json(
+      { error: `Image upload not configured (cloud:${!!cloudName} key:${!!apiKey} secret:${!!apiSecret})` },
+      { status: 500 }
+    );
   }
-
-  cloudinary.config({ cloud_name: cloudName, api_key: apiKey, api_secret: apiSecret });
 
   const formData = await req.formData();
   const file = formData.get("file") as File | null;
@@ -29,13 +30,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Only JPEG, PNG, WebP, GIF allowed" }, { status: 400 });
   }
 
-  const buffer = Buffer.from(await file.arrayBuffer());
-  const base64 = `data:${file.type};base64,${buffer.toString("base64")}`;
+  const timestamp = Math.floor(Date.now() / 1000).toString();
+  const folder = "push-play";
+  const sigStr = `folder=${folder}&timestamp=${timestamp}${apiSecret}`;
+  const signature = crypto.createHash("sha256").update(sigStr).digest("hex");
 
-  const result = await cloudinary.uploader.upload(base64, {
-    folder: "push-play",
-    resource_type: "image",
+  const uploadForm = new FormData();
+  uploadForm.append("file", file);
+  uploadForm.append("api_key", apiKey);
+  uploadForm.append("timestamp", timestamp);
+  uploadForm.append("signature", signature);
+  uploadForm.append("folder", folder);
+
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+    method: "POST",
+    body: uploadForm,
   });
 
-  return NextResponse.json({ url: result.secure_url });
+  if (!res.ok) {
+    const err = await res.json();
+    return NextResponse.json({ error: err.error?.message ?? "Upload failed" }, { status: 500 });
+  }
+
+  const data = await res.json();
+  return NextResponse.json({ url: data.secure_url });
 }
