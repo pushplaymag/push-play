@@ -262,7 +262,7 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
       album: album || null,
       genre: genre || null,
       country: country || null,
-      tags: [],
+      tags: JSON.stringify([]),
     };
 
     try {

@@ -16,7 +16,31 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   const { id } = await params;
   const body = await request.json();
 
-  const post = await db.post.update({ where: { id }, data: body });
+  // Explicitly map fields to avoid type mismatches (e.g. tags must be JSON string)
+  const data: Record<string, unknown> = {
+    title: body.title,
+    excerpt: body.excerpt,
+    content: body.content,
+    titleKo: body.titleKo ?? null,
+    excerptKo: body.excerptKo ?? null,
+    contentKo: body.contentKo ?? null,
+    titleJa: body.titleJa ?? null,
+    excerptJa: body.excerptJa ?? null,
+    contentJa: body.contentJa ?? null,
+    coverImage: body.coverImage ?? null,
+    category: body.category,
+    author: body.author,
+    published: body.published ?? false,
+    featured: body.featured ?? false,
+    rating: body.rating ? parseFloat(body.rating) : null,
+    artist: body.artist ?? null,
+    album: body.album ?? null,
+    genre: body.genre ?? null,
+    country: body.country ?? null,
+    tags: Array.isArray(body.tags) ? JSON.stringify(body.tags) : (body.tags ?? "[]"),
+  };
+
+  const post = await db.post.update({ where: { id }, data });
   return NextResponse.json(post);
 }
 
