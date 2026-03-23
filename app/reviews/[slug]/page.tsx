@@ -8,6 +8,7 @@ import { formatDistanceToNow } from "date-fns";
 import { enUS, ko, ja } from "date-fns/locale";
 import { getLocale } from "@/lib/locale";
 import { localizePost } from "@/lib/localize";
+import ShareButtons from "@/components/ui/ShareButtons";
 import type { Metadata } from "next";
 
 const dateFnsLocales = { en: enUS, ko, ja };
@@ -102,14 +103,17 @@ export default async function ReviewArticlePage({ params }: PageProps) {
           </div>
         )}
 
-        <div className="flex items-center justify-center gap-4 text-[10px] font-bold uppercase tracking-widest text-[#a89e99] border-t border-b border-[#e0ddd8] py-3">
-          <span>{post.author}</span>
-          <span className="text-[#e0ddd8]">·</span>
-          <span>
-            {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true, locale: dateFnsLocales[locale] })}
-          </span>
-          <span className="text-[#e0ddd8]">·</span>
-          <span>{post.comments.length} comments</span>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-b border-[#e0ddd8] py-3">
+          <div className="flex items-center justify-center sm:justify-start gap-4 text-[10px] font-bold uppercase tracking-widest text-[#a89e99]">
+            <span>{post.author}</span>
+            <span className="text-[#e0ddd8]">·</span>
+            <span>
+              {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true, locale: dateFnsLocales[locale] })}
+            </span>
+            <span className="text-[#e0ddd8]">·</span>
+            <span>{post.comments.length} comments</span>
+          </div>
+          <ShareButtons url={`https://www.pushplaymag.net/reviews/${post.slug}`} title={lPost.title} />
         </div>
       </header>
 
