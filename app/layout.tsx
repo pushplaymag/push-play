@@ -43,6 +43,12 @@ export const metadata: Metadata = {
     title: SITE_CONFIG.name,
     description: SITE_CONFIG.description,
   },
+  applicationName: "push play",
+  appleWebApp: {
+    capable: true,
+    title: "push play",
+    statusBarStyle: "black-translucent",
+  },
   icons: [
     { rel: "icon", type: "image/png", sizes: "96x96", url: "/favicon-96x96.png" },
     { rel: "icon", type: "image/svg+xml", url: "/favicon.svg" },
