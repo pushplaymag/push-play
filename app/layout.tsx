@@ -65,6 +65,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={`${geistSans.variable} ${geistMono.variable} ${barlowCondensed.variable}`}>
+      <head>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9943359525568062"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="bg-white text-[#0d0b0a] min-h-screen flex flex-col antialiased">
         <SessionProvider>
           <Navbar />
