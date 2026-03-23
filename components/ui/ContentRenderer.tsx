@@ -7,11 +7,23 @@ function toSpotifyEmbed(url: string): string {
   return url.replace("https://open.spotify.com/", "https://open.spotify.com/embed/").split("?")[0];
 }
 
+function extractInstagramShortcode(url: string): string | null {
+  const match = url.match(/instagram\.com\/(?:p|reel|tv)\/([A-Za-z0-9_-]+)/);
+  return match ? match[1] : null;
+}
+
+function extractTweetId(url: string): string | null {
+  const match = url.match(/(?:twitter\.com|x\.com)\/\w+\/status\/(\d+)/);
+  return match ? match[1] : null;
+}
+
 type Block =
   | { type: "text"; content: string }
   | { type: "image"; url: string; alt: string; caption: string }
   | { type: "youtube"; url: string }
-  | { type: "spotify"; url: string };
+  | { type: "spotify"; url: string }
+  | { type: "instagram"; url: string }
+  | { type: "x"; url: string };
 
 export default function ContentRenderer({ content }: { content: string }) {
   let blocks: Block[];
@@ -74,6 +86,39 @@ export default function ContentRenderer({ content }: { content: string }) {
                 style={{ borderRadius: "4px" }}
                 className="w-full"
                 allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                loading="lazy"
+              />
+            </div>
+          );
+        }
+
+        if (block.type === "instagram") {
+          const shortcode = extractInstagramShortcode(block.url);
+          if (!shortcode) return null;
+          return (
+            <div key={i} className="my-8 flex justify-center">
+              <iframe
+                src={`https://www.instagram.com/p/${shortcode}/embed/`}
+                className="border-0"
+                style={{ width: "100%", maxWidth: 540, height: 620 }}
+                scrolling="no"
+                allowTransparency
+                loading="lazy"
+              />
+            </div>
+          );
+        }
+
+        if (block.type === "x") {
+          const tweetId = extractTweetId(block.url);
+          if (!tweetId) return null;
+          return (
+            <div key={i} className="my-8 flex justify-center">
+              <iframe
+                src={`https://platform.twitter.com/embed/Tweet.html?id=${tweetId}&theme=light`}
+                className="border-0"
+                style={{ width: "100%", maxWidth: 550, height: 320 }}
+                scrolling="no"
                 loading="lazy"
               />
             </div>

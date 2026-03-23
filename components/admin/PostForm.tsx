@@ -39,13 +39,15 @@ function ImageUploadButton({ onUploaded }: { onUploaded: (url: string) => void }
   );
 }
 
-type BlockType = "text" | "image" | "youtube" | "spotify";
+type BlockType = "text" | "image" | "youtube" | "spotify" | "instagram" | "x";
 
 interface TextBlock { id: string; type: "text"; content: string }
 interface ImageBlock { id: string; type: "image"; url: string; alt: string; caption: string }
 interface YouTubeBlock { id: string; type: "youtube"; url: string }
 interface SpotifyBlock { id: string; type: "spotify"; url: string }
-type Block = TextBlock | ImageBlock | YouTubeBlock | SpotifyBlock;
+interface InstagramBlock { id: string; type: "instagram"; url: string }
+interface XBlock { id: string; type: "x"; url: string }
+type Block = TextBlock | ImageBlock | YouTubeBlock | SpotifyBlock | InstagramBlock | XBlock;
 
 function uid() { return Math.random().toString(36).slice(2, 9); }
 
@@ -139,6 +141,8 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
     if (type === "text") return { id, type: "text", content: "" };
     if (type === "image") return { id, type: "image", url: "", alt: "", caption: "" };
     if (type === "youtube") return { id, type: "youtube", url: "" };
+    if (type === "instagram") return { id, type: "instagram", url: "" };
+    if (type === "x") return { id, type: "x", url: "" };
     return { id, type: "spotify", url: "" };
   }
 
@@ -439,7 +443,7 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
           <div className="border-2 border-dashed border-[#e0ddd8] p-6 text-center">
             <p className="text-xs text-[#a89e99] mb-3">블록을 추가해 글을 작성하세요</p>
             <div className="flex flex-wrap justify-center gap-2">
-              {(["text", "image", "youtube", "spotify"] as BlockType[]).map(type => (
+              {(["text", "image", "youtube", "spotify", "instagram", "x"] as BlockType[]).map(type => (
                 <button key={type} type="button" onClick={() => activeActions.add(type)}
                   className="text-[10px] font-bold uppercase tracking-widest border border-[#e0ddd8] px-4 py-2 text-[#7a706b] hover:border-[#ff4e5b] hover:text-[#ff4e5b] transition-colors">
                   + {type}
@@ -456,7 +460,7 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
                   {/* Block toolbar */}
                   <div className="flex items-center justify-between px-3 py-1.5 bg-[#f8f7f5] border-b border-[#e0ddd8]">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-[#a89e99]">
-                      {block.type === "text" ? "📝 Text" : block.type === "image" ? "🖼 Image" : block.type === "youtube" ? "▶ YouTube" : "🎵 Spotify"}
+                      {block.type === "text" ? "📝 Text" : block.type === "image" ? "🖼 Image" : block.type === "youtube" ? "▶ YouTube" : block.type === "spotify" ? "🎵 Spotify" : block.type === "instagram" ? "📸 Instagram" : "✖ X / Twitter"}
                     </span>
                     <div className="flex items-center gap-1">
                       <button type="button" onClick={() => activeActions.move(block.id, -1)} disabled={idx === 0}
@@ -531,6 +535,48 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
                         )}
                       </div>
                     )}
+
+                    {block.type === "instagram" && (
+                      <div className="space-y-2">
+                        <input value={block.url} onChange={e => activeActions.update(block.id, { url: e.target.value })}
+                          placeholder="Instagram 게시물 URL (https://www.instagram.com/p/...)" className={inputCls} />
+                        {block.url && (() => {
+                          const match = block.url.match(/instagram\.com\/(?:p|reel|tv)\/([A-Za-z0-9_-]+)/);
+                          return match ? (
+                            <iframe
+                              src={`https://www.instagram.com/p/${match[1]}/embed/`}
+                              className="border-0 w-full"
+                              style={{ maxWidth: 480, height: 560 }}
+                              scrolling="no"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <p className="text-[11px] text-[#a89e99]">올바른 Instagram URL을 입력해주세요 (게시물, 릴스 지원)</p>
+                          );
+                        })()}
+                      </div>
+                    )}
+
+                    {block.type === "x" && (
+                      <div className="space-y-2">
+                        <input value={block.url} onChange={e => activeActions.update(block.id, { url: e.target.value })}
+                          placeholder="X (Twitter) 게시물 URL (https://x.com/.../status/...)" className={inputCls} />
+                        {block.url && (() => {
+                          const match = block.url.match(/(?:twitter\.com|x\.com)\/\w+\/status\/(\d+)/);
+                          return match ? (
+                            <iframe
+                              src={`https://platform.twitter.com/embed/Tweet.html?id=${match[1]}&theme=light`}
+                              className="border-0 w-full"
+                              style={{ maxWidth: 550, height: 300 }}
+                              scrolling="no"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <p className="text-[11px] text-[#a89e99]">올바른 X URL을 입력해주세요 (예: https://x.com/user/status/123456)</p>
+                          );
+                        })()}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -539,11 +585,11 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
                   <div className="absolute inset-x-0 top-1/2 h-px bg-[#e0ddd8] group-hover:bg-[#ff4e5b] transition-colors" />
                   {insertMenuAt === idx ? (
                     <div className="relative z-10 flex items-center gap-1 bg-white border border-[#ff4e5b] px-2 py-1 shadow-sm">
-                      {(["text", "image", "youtube", "spotify"] as BlockType[]).map(type => (
+                      {(["text", "image", "youtube", "spotify", "instagram", "x"] as BlockType[]).map(type => (
                         <button key={type} type="button"
                           onClick={() => { activeActions.insertAt(idx, type); setInsertMenuAt(null); }}
                           className="text-[9px] font-bold uppercase tracking-widest px-2 py-1 text-[#ff4e5b] hover:bg-[#ff4e5b] hover:text-white transition-colors">
-                          {type === "text" ? "📝" : type === "image" ? "🖼" : type === "youtube" ? "▶" : "🎵"} {type}
+                          {type === "text" ? "📝" : type === "image" ? "🖼" : type === "youtube" ? "▶" : type === "spotify" ? "🎵" : type === "instagram" ? "📸" : "✖"} {type}
                         </button>
                       ))}
                       <button type="button" onClick={() => setInsertMenuAt(null)}
@@ -562,7 +608,7 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
 
             {/* Add to end */}
             <div className="flex flex-wrap gap-2 mt-2">
-              {(["text", "image", "youtube", "spotify"] as BlockType[]).map(type => (
+              {(["text", "image", "youtube", "spotify", "instagram", "x"] as BlockType[]).map(type => (
                 <button key={type} type="button" onClick={() => { activeActions.add(type); setInsertMenuAt(null); }}
                   className="text-[10px] font-bold uppercase tracking-widest border border-[#e0ddd8] px-4 py-2 text-[#7a706b] hover:border-[#ff4e5b] hover:text-[#ff4e5b] transition-colors">
                   + {type}
