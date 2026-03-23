@@ -9,6 +9,15 @@ import { localizePost } from "@/lib/localize";
 export const revalidate = 0;
 
 async function getCarouselPosts() {
+  // 어드민에서 featured 체크한 포스트 (최대 5개, 뉴스/리뷰 무관)
+  const featured = await db.post.findMany({
+    where: { published: true, featured: true },
+    orderBy: { createdAt: "desc" },
+    take: 5,
+    include: { _count: { select: { comments: true } } },
+  });
+  if (featured.length > 0) return featured;
+  // featured 없으면 최신 뉴스 3개로 대체
   return db.post.findMany({
     where: { published: true, category: "news" },
     orderBy: { createdAt: "desc" },

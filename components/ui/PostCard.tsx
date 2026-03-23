@@ -281,7 +281,9 @@ function ListCard({ post }: { post: PostCardProps["post"] }) {
             <h3 className="font-bold text-[#0d0b0a] leading-snug group-hover:text-[#ff4e5b] transition-colors text-base sm:text-lg line-clamp-2 mb-2">
               {post.title}
             </h3>
-            <p className="text-sm text-[#a89e99] line-clamp-2 hidden sm:block">{post.excerpt}</p>
+            <p className="text-sm text-[#a89e99] hidden sm:block" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", minHeight: "2.5rem" }}>
+              {post.excerpt}
+            </p>
           </div>
           <div className="flex items-center justify-between mt-2">
             <div className="flex items-center gap-2 text-[11px] text-[#a89e99]">
