@@ -23,7 +23,30 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const post = await db.post.findUnique({ where: { slug, category: "review" } });
   if (!post) return {};
-  return { title: post.title, description: post.excerpt };
+
+  const url = `https://www.pushplaymag.net/reviews/${post.slug}`;
+  const images = post.coverImage ? [{ url: post.coverImage, width: 1200, height: 800, alt: post.title }] : [];
+  const description = [post.artist, post.album, post.excerpt].filter(Boolean).join(" — ");
+
+  return {
+    title: post.title,
+    description,
+    openGraph: {
+      title: post.title,
+      description: description || undefined,
+      url,
+      siteName: "push play",
+      type: "article",
+      images,
+      publishedTime: post.createdAt.toISOString(),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: description || undefined,
+      images: post.coverImage ? [post.coverImage] : [],
+    },
+  };
 }
 
 const COUNTRY_LABELS: Record<string, string> = {

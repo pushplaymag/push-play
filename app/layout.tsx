@@ -28,6 +28,21 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_CONFIG.name}`,
   },
   description: SITE_CONFIG.description,
+  metadataBase: new URL("https://www.pushplaymag.net"),
+  openGraph: {
+    siteName: SITE_CONFIG.name,
+    type: "website",
+    locale: "ko_KR",
+    url: "https://www.pushplaymag.net",
+    title: SITE_CONFIG.name,
+    description: SITE_CONFIG.description,
+    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: SITE_CONFIG.name }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_CONFIG.name,
+    description: SITE_CONFIG.description,
+  },
   icons: [
     { rel: "icon", type: "image/png", sizes: "96x96", url: "/favicon-96x96.png" },
     { rel: "icon", type: "image/svg+xml", url: "/favicon.svg" },
