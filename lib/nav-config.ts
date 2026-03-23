@@ -16,13 +16,6 @@ export const NAV_ITEMS: NavItem[] = [
     label: "Reviews",
     labelKo: "리뷰",
     href: "/reviews",
-    children: [
-      { label: "All Reviews", labelKo: "전체", href: "/reviews" },
-      { label: "Korea", labelKo: "한국", href: "/reviews?country=kr" },
-      { label: "Japan", labelKo: "일본", href: "/reviews?country=jp" },
-      { label: "Asia", labelKo: "아시아", href: "/reviews?country=asia" },
-      { label: "UK / US", labelKo: "영미권", href: "/reviews?country=en" },
-    ],
   },
   {
     label: "Demo",
