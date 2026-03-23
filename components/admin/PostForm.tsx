@@ -392,6 +392,7 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
       {/* Cover Image */}
       <div>
         <label className={labelCls}>Cover Image</label>
+        <p className="text-[10px] text-[#a89e99] mb-1.5">권장 사이즈: 1200 × 800px (3:2 비율) · JPG/PNG · 2MB 이하</p>
         <div className="flex gap-2">
           <input value={coverImage} onChange={e => setCoverImage(e.target.value)}
             placeholder="https://... or upload a file" className={inputCls} />

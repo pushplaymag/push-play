@@ -43,9 +43,10 @@ export default async function NewsArticlePage({ params }: PageProps) {
     <div>
       {/* Cover */}
       {post.coverImage && (
-        <div className="relative w-full" style={{ height: "55vh", minHeight: 320 }}>
-          <Image src={post.coverImage} alt={post.title} fill className="object-cover opacity-60" priority />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0d0b0a] via-[#0d0b0a]/40 to-transparent" />
+        <div className="max-w-2xl mx-auto px-6 lg:px-0 pt-10">
+          <div className="relative w-full overflow-hidden bg-[#eeece8]" style={{ height: 400 }}>
+            <Image src={post.coverImage} alt={post.title} fill className="object-cover" priority />
+          </div>
         </div>
       )}
 
