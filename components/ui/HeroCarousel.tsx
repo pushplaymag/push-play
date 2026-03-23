@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -21,6 +21,7 @@ function truncate(str: string, max: number) {
 
 export default function HeroCarousel({ posts }: { posts: CarouselPost[] }) {
   const [current, setCurrent] = useState(0);
+  const touchStartX = useRef<number | null>(null);
 
   useEffect(() => {
     if (posts.length <= 1) return;
@@ -34,6 +35,19 @@ export default function HeroCarousel({ posts }: { posts: CarouselPost[] }) {
 
   const prev = () => setCurrent((c) => (c - 1 + posts.length) % posts.length);
   const next = () => setCurrent((c) => (c + 1) % posts.length);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) {
+      diff > 0 ? next() : prev();
+    }
+    touchStartX.current = null;
+  };
   const post = posts[current];
   const dateStr = new Date(post.createdAt).toLocaleDateString("ko-KR", {
     year: "numeric", month: "2-digit", day: "2-digit",
@@ -42,7 +56,12 @@ export default function HeroCarousel({ posts }: { posts: CarouselPost[] }) {
   return (
     <>
       {/* ── Mobile: full-width overlay ── */}
-      <div className="sm:hidden relative overflow-hidden bg-[#111315]" style={{ minHeight: 440 }}>
+      <div
+        className="sm:hidden relative overflow-hidden bg-[#111315]"
+        style={{ minHeight: 440 }}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         {posts.map((p, i) => (
           <div key={p.id} className={`absolute inset-0 transition-opacity duration-700 ${i === current ? "opacity-100" : "opacity-0"}`}>
             {p.coverImage && (
