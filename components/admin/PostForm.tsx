@@ -419,16 +419,6 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
             <input value={genre} onChange={e => setGenre(e.target.value)} className={inputCls} />
           </div>
           <div>
-            <label className={labelCls}>Country</label>
-            <select value={country} onChange={e => setCountry(e.target.value)} className={inputCls}>
-              <option value="">Select</option>
-              <option value="kr">Korea</option>
-              <option value="jp">Japan</option>
-              <option value="asia">Asia</option>
-              <option value="en">UK / US</option>
-            </select>
-          </div>
-          <div>
             <label className={labelCls}>Rating (0–5)</label>
             <input type="number" min="0" max="5" step="0.1" value={rating}
               onChange={e => setRating(e.target.value)} className={inputCls} />
