@@ -73,7 +73,8 @@ export default function HeroCarousel({ posts }: { posts: CarouselPost[] }) {
       </div>
 
       {/* ── PC: split layout (image left, text right) ── */}
-      <div className="hidden sm:flex border-b border-[#e0ddd8]" style={{ height: 500 }}>
+      <div className="hidden sm:block border-b border-[#e0ddd8] bg-[#f8f7f5] py-10 px-4 lg:px-10">
+      <div className="max-w-5xl mx-auto flex" style={{ height: 420 }}>
         {/* Image */}
         <div className="relative w-1/2 bg-[#111315] overflow-hidden flex-shrink-0">
           {posts.map((p, i) => (
@@ -133,6 +134,7 @@ export default function HeroCarousel({ posts }: { posts: CarouselPost[] }) {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </>
   );
