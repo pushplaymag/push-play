@@ -79,8 +79,8 @@ export default async function Footer() {
             </a>
           </div>
 
-          {/* Follow row */}
-          <div className="flex items-center gap-4">
+          {/* Follow row — mobile only */}
+          <div className="flex md:hidden items-center gap-4">
             <span className="text-sm font-bold text-[#0d0b0a] uppercase tracking-widest">
               {t(locale, "follow")}
             </span>

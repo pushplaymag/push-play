@@ -70,7 +70,7 @@ export default function HeroCarousel({ posts }: { posts: CarouselPost[] }) {
           </div>
         ))}
         <div className="absolute inset-0 bg-gradient-to-t from-[#111315] via-[#111315]/50 to-transparent" />
-        <Link href={`/${post.category}/${post.slug}`} className="group relative flex flex-col justify-end px-5 pb-14 pt-20" style={{ minHeight: 440 }}>
+        <Link href={`/${post.category === "review" ? "reviews" : post.category}/${post.slug}`} className="group relative flex flex-col justify-end px-5 pb-14 pt-20" style={{ minHeight: 440 }}>
           <span className="text-[10px] font-bold uppercase tracking-widest text-[#ff4e5b] mb-2">
             {post.category === "news" ? "News" : "Review"}
           </span>
@@ -120,7 +120,7 @@ export default function HeroCarousel({ posts }: { posts: CarouselPost[] }) {
             <span className="text-[10px] font-bold uppercase tracking-widest text-[#ff4e5b] mb-4 block">
               {post.category === "news" ? "News" : "Review"}
             </span>
-            <Link href={`/${post.category}/${post.slug}`} className="group">
+            <Link href={`/${post.category === "review" ? "reviews" : post.category}/${post.slug}`} className="group">
               <h2
                 className="text-2xl lg:text-3xl font-black text-[#0d0b0a] leading-tight mb-4 group-hover:text-[#ff4e5b] transition-colors"
                 style={{ fontFamily: "var(--font-display)" }}

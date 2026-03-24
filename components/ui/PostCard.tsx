@@ -87,7 +87,7 @@ function Meta({ post }: { post: PostCardProps["post"] }) {
 // Hero — full-width image overlay, big condensed title
 function HeroCard({ post }: { post: PostCardProps["post"] }) {
   return (
-    <Link href={`/${post.category}/${post.slug}`} className="group block">
+    <Link href={`/${post.category === "review" ? "reviews" : post.category}/${post.slug}`} className="group block">
       <article className="relative overflow-hidden bg-[#eeece8]" style={{ minHeight: 520 }}>
         {post.coverImage && (
           <div className="absolute inset-0">
@@ -136,7 +136,7 @@ function HeroCard({ post }: { post: PostCardProps["post"] }) {
 // Featured — image top (16:9), text below
 function FeaturedCard({ post }: { post: PostCardProps["post"] }) {
   return (
-    <Link href={`/${post.category}/${post.slug}`} className="group block h-full">
+    <Link href={`/${post.category === "review" ? "reviews" : post.category}/${post.slug}`} className="group block h-full">
       <article className="flex flex-col h-full">
         <div className="relative overflow-hidden bg-[#eeece8]" style={{ paddingTop: "56.25%" }}>
           {post.coverImage ? (
@@ -179,7 +179,7 @@ function FeaturedCard({ post }: { post: PostCardProps["post"] }) {
 // Standard — horizontal list row
 function StandardCard({ post }: { post: PostCardProps["post"] }) {
   return (
-    <Link href={`/${post.category}/${post.slug}`} className="group block">
+    <Link href={`/${post.category === "review" ? "reviews" : post.category}/${post.slug}`} className="group block">
       <article className="flex gap-4 py-4 border-b border-[#e0ddd8]">
         {post.coverImage ? (
           <div className="relative flex-shrink-0 overflow-hidden bg-[#eeece8]" style={{ width: 90, height: 68 }}>
@@ -210,7 +210,7 @@ function StandardCard({ post }: { post: PostCardProps["post"] }) {
 // Review — square album art
 function ReviewCard({ post }: { post: PostCardProps["post"] }) {
   return (
-    <Link href={`/${post.category}/${post.slug}`} className="group block h-full">
+    <Link href={`/${post.category === "review" ? "reviews" : post.category}/${post.slug}`} className="group block h-full">
       <article className="flex flex-col h-full">
         <div className="relative overflow-hidden bg-[#eeece8]" style={{ paddingTop: "100%" }}>
           {post.coverImage ? (
@@ -256,7 +256,7 @@ function ListCard({ post }: { post: PostCardProps["post"] }) {
   }).replace(/\. /g, ".").replace(/\.$/, "");
 
   return (
-    <Link href={`/${post.category}/${post.slug}`} className="group block">
+    <Link href={`/${post.category === "review" ? "reviews" : post.category}/${post.slug}`} className="group block">
       <article className="flex gap-5 py-5 border-b border-[#e8e6e2]">
         {/* Thumbnail */}
         <div className="relative flex-shrink-0 overflow-hidden bg-[#eeece8]" style={{ width: 180, height: 120 }}>
