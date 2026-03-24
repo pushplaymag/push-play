@@ -70,15 +70,18 @@ export default async function ReviewArticlePage({ params }: PageProps) {
   return (
     <div>
       {/* ── Split Hero ── */}
-      <div className="flex flex-col sm:flex-row" style={{ minHeight: 380 }}>
-        {/* Left: Cover Image */}
-        <div className="relative w-full sm:w-1/2 bg-[#c8b8a0]" style={{ minHeight: 260 }}>
+      {/* sm:h-[520px] fixes the hero height on desktop; flex children stretch to fill */}
+      <div className="flex flex-col sm:flex-row sm:h-[520px]">
+        {/* Left: Cover Image
+            Mobile: aspect-square so album art shows in full
+            Desktop: fills the fixed 520px hero height, object-contain prevents cropping */}
+        <div className="relative w-full aspect-square sm:aspect-auto sm:w-1/2 bg-[#0d0b0a]">
           {post.coverImage ? (
             <Image
               src={post.coverImage}
               alt={post.album ?? post.title}
               fill
-              className="object-cover"
+              className="object-contain"
               priority
             />
           ) : (
