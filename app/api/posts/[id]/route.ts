@@ -37,6 +37,8 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     album: body.album ?? null,
     genre: body.genre ?? null,
     country: body.country ?? null,
+    releaseYear: body.releaseYear ? parseInt(body.releaseYear) : null,
+    label: body.label ?? null,
     tags: Array.isArray(body.tags) ? JSON.stringify(body.tags) : (body.tags ?? "[]"),
   };
 

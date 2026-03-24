@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { title, excerpt, content, titleKo, excerptKo, contentKo, titleJa, excerptJa, contentJa, coverImage, category, tags, published, featured, author, rating, artist, album, genre, country } = body;
+  const { title, excerpt, content, titleKo, excerptKo, contentKo, titleJa, excerptJa, contentJa, coverImage, category, tags, published, featured, author, rating, artist, album, genre, country, releaseYear, label } = body;
 
   // Allow Korean-only posts: use Ko fields as fallback for English
   const effectiveTitle = title || titleKo;
@@ -58,6 +58,8 @@ export async function POST(request: NextRequest) {
       album: album || null,
       genre: genre || null,
       country: country || null,
+      releaseYear: releaseYear ? parseInt(releaseYear) : null,
+      label: label || null,
     },
   });
 

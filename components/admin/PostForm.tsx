@@ -81,6 +81,8 @@ interface InitialData {
   album: string | null;
   genre: string | null;
   country: string | null;
+  releaseYear: number | null;
+  label: string | null;
 }
 
 export default function PostForm({ initialData }: { initialData?: InitialData }) {
@@ -99,6 +101,8 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
   const [album, setAlbum] = useState(initialData?.album ?? "");
   const [genre, setGenre] = useState(initialData?.genre ?? "");
   const [country, setCountry] = useState(initialData?.country ?? "");
+  const [releaseYear, setReleaseYear] = useState(initialData?.releaseYear?.toString() ?? "");
+  const [label, setLabel] = useState(initialData?.label ?? "");
   const [langTab, setLangTab] = useState<"en" | "ko" | "ja">("en");
   const [titleKo, setTitleKo] = useState(initialData?.titleKo ?? "");
   const [excerptKo, setExcerptKo] = useState(initialData?.excerptKo ?? "");
@@ -268,6 +272,8 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
       album: album || null,
       genre: genre || null,
       country: country || null,
+      releaseYear: releaseYear || null,
+      label: label || null,
       tags: JSON.stringify([]),
     };
 
@@ -422,6 +428,16 @@ export default function PostForm({ initialData }: { initialData?: InitialData })
           <div>
             <label className={labelCls}>Genre</label>
             <input value={genre} onChange={e => setGenre(e.target.value)} className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>Release Year</label>
+            <input type="number" min="1900" max="2099" step="1" value={releaseYear}
+              onChange={e => setReleaseYear(e.target.value)} placeholder="예: 2024" className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>Label</label>
+            <input value={label} onChange={e => setLabel(e.target.value)}
+              placeholder="예: Sony Music Latin" className={inputCls} />
           </div>
           <div>
             <label className={labelCls}>Rating (0–5)</label>
