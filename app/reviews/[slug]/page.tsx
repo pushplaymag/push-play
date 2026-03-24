@@ -70,25 +70,26 @@ export default async function ReviewArticlePage({ params }: PageProps) {
   return (
     <div>
       {/* ── Split Hero ── */}
-      {/* sm:h-[520px] fixes the hero height on desktop; flex children stretch to fill */}
-      <div className="flex flex-col sm:flex-row sm:h-[520px]">
+      <div className="flex flex-col sm:flex-row">
         {/* Left: Cover Image
-            Mobile: aspect-square so album art shows in full
-            Desktop: fills the fixed 520px hero height, object-contain prevents cropping */}
-        <div className="relative w-full aspect-square sm:aspect-auto sm:w-1/2 bg-[#0d0b0a]">
-          {post.coverImage ? (
-            <Image
-              src={post.coverImage}
-              alt={post.album ?? post.title}
-              fill
-              className="object-contain"
-              priority
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-white/30 text-7xl">♪</span>
-            </div>
-          )}
+            padding-top trick: makes this panel square (100% of its own width),
+            capped at 560px. Works on both mobile and desktop without flex conflicts. */}
+        <div className="w-full sm:w-1/2 bg-[#0d0b0a]">
+          <div className="relative w-full" style={{ paddingTop: "min(100%, 560px)" }}>
+            {post.coverImage ? (
+              <Image
+                src={post.coverImage}
+                alt={post.album ?? post.title}
+                fill
+                className="object-contain"
+                priority
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-white/30 text-7xl">♪</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right: Info Panel */}
