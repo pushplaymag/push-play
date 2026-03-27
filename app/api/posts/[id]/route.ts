@@ -16,6 +16,16 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   const { id } = await params;
   const body = await request.json();
 
+  // 숫자 입력값 범위 검증
+  const ratingNum = body.rating ? parseFloat(body.rating) : null;
+  if (ratingNum !== null && (isNaN(ratingNum) || ratingNum < 0 || ratingNum > 5)) {
+    return NextResponse.json({ error: "Rating must be between 0 and 5" }, { status: 400 });
+  }
+  const yearNum = body.releaseYear ? parseInt(body.releaseYear, 10) : null;
+  if (yearNum !== null && (isNaN(yearNum) || yearNum < 1900 || yearNum > 2099)) {
+    return NextResponse.json({ error: "Invalid release year" }, { status: 400 });
+  }
+
   // Explicitly map fields to avoid type mismatches (e.g. tags must be JSON string)
   const data: Record<string, unknown> = {
     title: body.title,
@@ -32,12 +42,12 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     author: body.author,
     published: body.published ?? false,
     featured: body.featured ?? false,
-    rating: body.rating ? parseFloat(body.rating) : null,
+    rating: ratingNum,
     artist: body.artist ?? null,
     album: body.album ?? null,
     genre: body.genre ?? null,
     country: body.country ?? null,
-    releaseYear: body.releaseYear ? parseInt(body.releaseYear) : null,
+    releaseYear: yearNum,
     label: body.label ?? null,
     tags: Array.isArray(body.tags) ? JSON.stringify(body.tags) : (body.tags ?? "[]"),
   };

@@ -33,8 +33,14 @@ export default function ContentRenderer({ content }: { content: string }) {
     if (!Array.isArray(parsed)) throw new Error();
     blocks = parsed;
   } catch {
-    // Legacy HTML fallback
-    return <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: content }} />;
+    // Non-JSON content: render as plain text (no HTML injection risk)
+    return (
+      <div className="prose max-w-none space-y-4">
+        {content.split(/\n\n+/).map((para, i) => (
+          <p key={i} className="text-base text-[#3a3330] leading-relaxed">{para}</p>
+        ))}
+      </div>
+    );
   }
 
   return (

@@ -1,6 +1,5 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { db } from "@/lib/db";
 import Link from "next/link";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -10,19 +9,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect("/auth/admin");
   }
 
-  // GitHub 계정으로 로그인한 유저는 ADMIN으로 자동 승격
-  const githubAccount = await db.account.findFirst({
-    where: { userId: session.user.id, provider: "github" },
-  });
-
-  if (githubAccount) {
-    await db.user.update({ where: { id: session.user.id }, data: { role: "ADMIN" } });
-  } else {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const role = (session.user as any).role;
-    if (role !== "ADMIN") {
-      redirect("/");
-    }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const role = (session.user as any).role;
+  if (role !== "ADMIN") {
+    redirect("/");
   }
 
   return (

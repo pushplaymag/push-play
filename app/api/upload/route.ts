@@ -15,15 +15,18 @@ export async function POST(req: NextRequest) {
   const apiSecret = process.env.CLOUDINARY_API_SECRET;
 
   if (!cloudName || !apiKey || !apiSecret) {
-    return NextResponse.json(
-      { error: `Image upload not configured (cloud:${!!cloudName} key:${!!apiKey} secret:${!!apiSecret})` },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Image upload is not available" }, { status: 500 });
   }
 
   const formData = await req.formData();
   const file = formData.get("file") as File | null;
   if (!file) return NextResponse.json({ error: "No file provided" }, { status: 400 });
+
+  // 10MB 파일 크기 제한
+  const MAX_SIZE = 10 * 1024 * 1024;
+  if (file.size > MAX_SIZE) {
+    return NextResponse.json({ error: "File size must be under 10MB" }, { status: 400 });
+  }
 
   const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
   if (!allowedTypes.includes(file.type)) {

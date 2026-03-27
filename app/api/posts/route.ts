@@ -30,6 +30,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing required fields (title, excerpt, content)" }, { status: 400 });
   }
 
+  // 숫자 입력값 범위 검증
+  const ratingNum = rating ? parseFloat(rating) : null;
+  if (ratingNum !== null && (isNaN(ratingNum) || ratingNum < 0 || ratingNum > 5)) {
+    return NextResponse.json({ error: "Rating must be between 0 and 5" }, { status: 400 });
+  }
+  const yearNum = releaseYear ? parseInt(releaseYear, 10) : null;
+  if (yearNum !== null && (isNaN(yearNum) || yearNum < 1900 || yearNum > 2099)) {
+    return NextResponse.json({ error: "Invalid release year" }, { status: 400 });
+  }
+
   let slug = slugify(effectiveTitle);
   if (!slug) slug = `post-${Date.now()}`;
   const existing = await db.post.findUnique({ where: { slug } });
@@ -53,12 +63,12 @@ export async function POST(request: NextRequest) {
       published: published || false,
       featured: featured || false,
       author: author || "push play",
-      rating: rating ? parseFloat(rating) : null,
+      rating: ratingNum,
       artist: artist || null,
       album: album || null,
       genre: genre || null,
       country: country || null,
-      releaseYear: releaseYear ? parseInt(releaseYear) : null,
+      releaseYear: yearNum,
       label: label || null,
     },
   });
